@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-arrumei-purple: #3B1E5D;
+  --color-arrumei-purple-light: #5A3785;
+  --color-arrumei-bg-light: #F9FAFB;
+  --color-arrumei-bg-dark: #111827;
+  --color-arrumei-text-light: #1F2937;
+  --color-arrumei-text-dark: #F3F4F6;
+}
