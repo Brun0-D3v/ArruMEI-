@@ -45,8 +45,13 @@ const compromissos = [
   { id: 4, titulo: "Reunião online Ana Paula", data: "2026-03-22", hora: "15:00", tipo: "reuniao" },
 ];
 
-const totalEntradas = transacoes.filter((t) => t.tipo === "entrada").reduce((a, t) => a + t.valor, 0);
-const totalSaidas = transacoes.filter((t) => t.tipo === "saida").reduce((a, t) => a + t.valor, 0);
+const totalEntradas = transacoes
+.filter((t) => t.tipo === "entrada")
+.reduce((a, t) => a + t.valor, 0);
+const totalSaidas = transacoes
+.filter((t) => t.tipo === "saida")
+.reduce((a, t) => a + t.valor, 0);
+
 const saldo = totalEntradas - totalSaidas;
 
 const tipoColor = {

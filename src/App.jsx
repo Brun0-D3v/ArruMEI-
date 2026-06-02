@@ -1,19 +1,40 @@
 import { useState, useEffect } from 'react';
+import { supabase } from './services/supabase'; // <-- Importação do Supabase adicionada
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Financeiro } from './components/Financeiro';
 import { Agenda } from './components/Agenda';
 import { Dashboard } from './components/Dashboard';
-import { Auth } from './components/Auth'; // 1. Nova Importação
-import {Tarefas} from './components/Tarefas';
-import {Clientes} from './components/Clientes';
+import { Auth } from './components/Auth'; 
+import { Tarefas } from './components/Tarefas';
+import { Clientes } from './components/Clientes';
 
 function App() {
-  // Começamos o sistema na tela de 'login'
-  const [telaAtiva, setTelaAtiva] = useState('login');
-  
+  // ESTADOS DE SEGURANÇA (Supabase)
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // ESTADOS DE INTERFACE (A tela ativa agora começa no dashboard por padrão)
+  const [telaAtiva, setTelaAtiva] = useState('dashboard');
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // EFEITO 1: Verifica o login no banco de dados assim que o app abre
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // EFEITO 2: Gerencia o Dark Mode (Mantido do seu código original)
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -24,12 +45,21 @@ function App() {
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
-  // Se a tela ativa for 'login', renderiza SOMENTE a tela de autenticação
-  if (telaAtiva === 'login') {
-    return <Auth onLogin={setTelaAtiva} />;
+  // TRAVA DE TELA 1: Enquanto o sistema checa a sessão no Supabase
+  if (loading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <p className="text-gray-500 font-medium">Carregando ArruMEI...</p>
+      </div>
+    );
   }
 
-  // Se não for 'login', renderiza o sistema normal com Sidebar e Header
+  // TRAVA DE TELA 2: Se o usuário não tiver uma sessão ativa, mostra SÓ o Auth
+  if (!session) {
+    return <Auth onLogin={() => {}} />;
+  }
+
+  // TELA PRINCIPAL: Se passar pelas travas (está logado), renderiza o seu sistema completo
   return (
     <div className="flex h-screen bg-arrumei-bg-light dark:bg-gray-900 transition-colors duration-300 overflow-hidden font-sans">
       
